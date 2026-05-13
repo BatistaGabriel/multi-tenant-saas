@@ -1,0 +1,13 @@
+package com.gahbree0x4c.saas;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class MultiTenantSaasApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(MultiTenantSaasApplication.class, args);
+    }
+
+}
