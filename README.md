@@ -1,5 +1,3 @@
-# vetta-zinda
-
 ## Pré-requisitos
 
 Antes de qualquer coisa, garanta que estas ferramentas estão instaladas na máquina:
