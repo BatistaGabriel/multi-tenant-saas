@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+pass() { echo -e "${GREEN}✔${NC} $1"; }
+fail() { echo -e "${RED}✘${NC} $1"; }
+info() { echo -e "${YELLOW}→${NC} $1"; }
+
+STAGED_JAVA=$(git diff --cached --name-only --diff-filter=ACMR | grep '\.java$' || true)
+STAGED_PRETTIER=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(yml|yaml|json|md)$' || true)
+
+EXIT_CODE=0
+
+# ── Java: Checkstyle ────────────────────────────────────────────────────────
+if [ -n "$STAGED_JAVA" ]; then
+  info "Running Checkstyle on staged Java files..."
+  if ./mvnw checkstyle:check --no-transfer-progress -q 2>&1; then
+    pass "Checkstyle"
+  else
+    fail "Checkstyle failed. Fix the violations above before committing."
+    fail "Tip: Use // CHECKSTYLE:OFF ... // CHECKSTYLE:ON to suppress a block if truly needed."
+    EXIT_CODE=1
+  fi
+else
+  info "No staged Java files — skipping Checkstyle."
+fi
+
+# ── YAML / JSON / Markdown: Prettier ───────────────────────────────────────
+if [ -n "$STAGED_PRETTIER" ]; then
+  if command -v prettier &>/dev/null; then
+    info "Running Prettier on staged files..."
+    # shellcheck disable=SC2086
+    if prettier --check $STAGED_PRETTIER 2>&1; then
+      pass "Prettier"
+    else
+      fail "Prettier check failed."
+      fail "Run: prettier --write $STAGED_PRETTIER"
+      EXIT_CODE=1
+    fi
+  else
+    info "Prettier not found — skipping (install with: npm install -g prettier)"
+  fi
+fi
+
+# ── Final result ────────────────────────────────────────────────────────────
+if [ "$EXIT_CODE" -ne 0 ]; then
+  echo ""
+  fail "Pre-commit checks failed. Commit aborted."
+fi
+
+exit "$EXIT_CODE"

@@ -2,12 +2,13 @@ package com.gahbree0x4c.saas;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
-public class MultiTenantSaasApplication {
+@EnableJpaAuditing
+public class Application {
 
     public static void main(String[] args) {
-        SpringApplication.run(MultiTenantSaasApplication.class, args);
+        SpringApplication.run(Application.class, args);
     }
-
 }
